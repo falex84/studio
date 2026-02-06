@@ -4,15 +4,15 @@ import { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BCV_RATE, CONTACT_WA, PAGO_MOVIL_INFO } from "@/lib/constants";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BCV_RATE, CONTACT_WA, BANCOS_VENEZUELA, PAGO_MOVIL_INFO } from "@/lib/constants";
 import type { Product } from "@/lib/types";
+import Image from "next/image";
 import {
   X,
   Trash2,
   Smartphone,
   Banknote,
-  Coins,
-  RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getBcvRate } from "@/app/actions";
@@ -25,7 +25,7 @@ type CheckoutModalProps = {
   clearCart: () => void;
 };
 
-type PaymentMethod = "Pago Móvil" | "Efectivo" | "Binance Pay";
+type PaymentMethod = "Pago Movil" | "Efectivo";
 
 export default function CheckoutModal({
   isOpen,
@@ -35,14 +35,12 @@ export default function CheckoutModal({
   clearCart,
 }: CheckoutModalProps) {
   const { toast } = useToast();
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(
-    null
-  );
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
   const [pmData, setPmData] = useState({
-    banco: "",
+    bancoEmisor: "",
     referencia: "",
-    cedula: "",
-    telefono: "",
+    telefonoPago: "",
+    cedulaTitular: "",
   });
 
   const [bcvRate, setBcvRate] = useState<number>(BCV_RATE);
@@ -58,9 +56,9 @@ export default function CheckoutModal({
     if (cartItems.length === 0 || !selectedPayment) {
       return false;
     }
-    if (selectedPayment === "Pago Móvil") {
+    if (selectedPayment === "Pago Movil") {
       return (
-        pmData.banco && pmData.referencia && pmData.cedula && pmData.telefono
+        pmData.bancoEmisor && pmData.referencia && pmData.telefonoPago && pmData.cedulaTitular
       );
     }
     return true;
@@ -91,7 +89,7 @@ export default function CheckoutModal({
   useEffect(() => {
     if (!isOpen) {
       setSelectedPayment(null);
-      setPmData({ banco: "", referencia: "", cedula: "", telefono: "" });
+      setPmData({ bancoEmisor: "", referencia: "", telefonoPago: "", cedulaTitular: "" });
     }
   }, [isOpen]);
   
@@ -102,24 +100,18 @@ export default function CheckoutModal({
   const processCheckout = () => {
     if (!isCheckoutValid) return;
 
-    const items = cartItems.map(p => `• ${p.name}`).join('%0A');
+    const items = cartItems.map(p => `- ${p.name}`).join('%0A');
     
-    let message = `🛒 *NUEVA ORDEN ALEXPC*%0A%0A`;
-    message += `📦 *PRODUCTOS:*%0A${items}%0A%0A`;
-    message += `💵 *TOTAL USD:* $${totalUSD.toFixed(2)}%0A`;
-    message += `💸 *TOTAL BS:* Bs. ${totalBs.toLocaleString('de-DE', {minimumFractionDigits: 2})}%0A`;
-    message += `📈 *TASA BCV:* Bs. ${bcvRate.toFixed(2)}%0A`;
-    message += `💳 *MÉTODO:* ${selectedPayment}%0A%0A`;
+    let message = `🛒 *ORDEN ALEXPC*%0A%0A*ITEMS:*%0A${items}%0A%0A`;
+    message += `USD: $${totalUSD.toFixed(2)}%0A`;
+    message += `Tasa: ${bcvRate.toFixed(2)}%0A`;
+    message += `Bs: ${totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%0A`;
+    message += `Método: ${selectedPayment}`;
 
-    if (selectedPayment === 'Pago Móvil') {
-        message += `📝 *DATOS DE PAGO REPORTADOS:*%0A`;
-        message += `🏦 Banco: ${pmData.banco}%0A`;
-        message += `🔢 Ref: ${pmData.referencia}%0A`;
-        message += `🆔 Cédula: ${pmData.cedula}%0A`;
-        message += `📱 Telf: ${pmData.telefono}%0A%0A`;
+    if (selectedPayment === 'Pago Movil') {
+        message += `%0A%0ABanco: ${pmData.bancoEmisor}%0ARef: ${pmData.referencia}`;
     }
 
-    message += `✅ _Por favor, verifique disponibilidad para proceder._`;
     window.open(`https://wa.me/${CONTACT_WA}?text=${message}`, '_blank');
     
     toast({ title: "Orden enviada a WhatsApp", description: "Completa tu compra con nuestro equipo." });
@@ -129,29 +121,30 @@ export default function CheckoutModal({
 
   const paymentOptions = [
     {
-      id: "Pago Móvil",
+      id: "Pago Movil",
       icon: Smartphone,
       color: "text-primary",
       label: "Pago Móvil",
     },
-    { id: "Efectivo", icon: Banknote, color: "text-green-500", label: "Efectivo" },
-    { id: "Binance Pay", icon: Coins, color: "text-yellow-500", label: "Binance" },
+    { id: "Efectivo", icon: Banknote, color: "text-green-600", label: "Efectivo" },
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="p-0 border-primary/20 bg-background/95 backdrop-blur-xl max-w-6xl w-full h-full max-h-[92vh] flex flex-col md:flex-row rounded-[2.5rem] md:rounded-[40px] gap-0">
-        <div className="w-full md:w-5/12 p-6 md:p-10 border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0">
-          <div className="flex justify-between items-center mb-4 md:mb-6">
-            <h3 className="text-xl md:text-3xl font-extrabold uppercase tracking-tighter">Tu Compra</h3>
+      <DialogContent className="p-0 bg-background max-w-5xl w-full h-full sm:h-auto sm:max-h-[90vh] flex flex-col md:flex-row sm:rounded-[30px] gap-0 shadow-2xl">
+        <div className="w-full md:w-5/12 p-5 md:p-8 bg-card md:border-r flex flex-col overflow-hidden">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter">Resumen</h3>
+            <Button onClick={onClose} variant="ghost" size="icon" className="md:hidden text-muted-foreground"><X className="w-6 h-6"/></Button>
           </div>
-          <div id="cart-items" className="flex-grow space-y-3 mb-4 md:mb-6 overflow-y-auto pr-2 custom-scroll">
+          <div id="cart-items" className="flex-grow overflow-y-auto space-y-3 mb-6 pr-2 custom-scroll max-h-[30vh] md:max-h-none">
             {cartItems.length > 0 ? (
               cartItems.map((item, index) => (
-                <div key={`${item.id}-${index}`} className="flex justify-between items-center bg-foreground/5 p-3 rounded-xl border border-white/5">
-                  <div className="flex flex-col">
-                    <h4 className="text-sm font-bold uppercase truncate max-w-[150px] sm:max-w-[200px]">{item.name}</h4>
-                    <span className="text-primary font-black text-base">${item.price.toFixed(2)}</span>
+                <div key={`${item.id}-${index}`} className="flex items-center gap-3 bg-background p-3 rounded-xl border">
+                  <Image src={item.image} alt={item.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
+                  <div className="flex-grow">
+                      <h4 className="text-sm font-bold uppercase leading-none truncate max-w-[150px] sm:max-w-[200px]">{item.name}</h4>
+                      <span className="text-primary font-black text-xs">${item.price.toFixed(2)}</span>
                   </div>
                   <Button variant="ghost" size="icon" className="text-red-500/50 hover:text-red-500" onClick={() => removeFromCart(index)}>
                     <Trash2 className="w-4 h-4" />
@@ -159,83 +152,72 @@ export default function CheckoutModal({
                 </div>
               ))
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-foreground/20 py-10 text-sm font-black uppercase">
-                Carrito Vacío
+              <div className="py-12 text-center text-sm font-black uppercase text-foreground/20">
+                Vacio
               </div>
             )}
           </div>
-          <div className="pt-4 border-t border-white/10 mt-auto">
-             <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground uppercase font-bold text-xs tracking-widest">Tasa BCV Oficial</span>
-                <div className="flex items-center gap-2">
-                  {isLoadingRate ? (
-                    <span className="text-primary text-sm font-mono font-bold tracking-tighter animate-pulse">Cargando...</span>
-                  ) : (
-                    <span className="text-primary text-sm font-mono font-bold tracking-tighter">Bs. {bcvRate.toFixed(2)}</span>
-                  )}
-                  <Button variant="ghost" size="icon" onClick={fetchBcvRate} disabled={isLoadingRate} className="h-6 w-6 text-muted-foreground hover:text-primary">
-                    <RefreshCw className={`w-3 h-3 ${isLoadingRate ? 'animate-spin' : ''}`} />
-                  </Button>
+          <div className="pt-4 border-t">
+             <div className="flex items-center justify-between mb-3 px-2 py-1.5 bg-primary/5 rounded-lg border border-primary/10">
+                <span className="text-xs font-black uppercase text-primary tracking-widest">Tasa BCV Oficial</span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full ${isLoadingRate ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></span>
+                  <span className="text-sm font-bold text-foreground italic">
+                    {isLoadingRate ? 'Cargando...' : `Bs. ${bcvRate.toFixed(2)}`}
+                  </span>
                 </div>
             </div>
-            <div className="flex justify-between items-end mb-2">
-                <span className="text-muted-foreground uppercase font-bold text-xs tracking-widest">Subtotal USD</span>
-                <span id="cart-total" className="text-foreground text-2xl md:text-3xl font-black">${totalUSD.toFixed(2)}</span>
+            <div className="flex justify-between text-sm font-bold text-muted-foreground uppercase mb-2">
+              <span>Subtotal USD</span>
+              <span className="text-foreground">${totalUSD.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between items-end">
-                <span className="text-muted-foreground uppercase font-bold text-xs tracking-widest">Total en Bs.</span>
-                <span id="cart-total-bs" className="text-primary text-xl md:text-2xl font-black italic">Bs. {totalBs.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-bold text-primary uppercase">Total en Bs.</span>
+              <span className="text-primary text-xl md:text-2xl font-black italic">Bs. {totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
             </div>
           </div>
         </div>
-        <div className="w-full md:w-7/12 p-6 md:p-10 bg-black/50 flex flex-col overflow-y-auto custom-scroll">
-          <div className="flex-grow">
-            <div className="flex justify-end mb-4">
-              <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-white">
-                <X className="w-8 h-8"/>
-              </Button>
+
+        <div className="w-full md:w-7/12 p-5 md:p-8 bg-background flex flex-col overflow-y-auto custom-scroll">
+            <div className="hidden md:flex justify-end mb-4">
+                <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-primary"><X className="w-7 h-7" /></Button>
             </div>
-            <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Selecciona Pago</h4>
-            <div className="grid grid-cols-3 gap-2 md:gap-4 mb-6">
-              {paymentOptions.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => setSelectedPayment(opt.id as PaymentMethod)}
-                  className={`border p-3 rounded-xl flex flex-col items-center gap-2 transition-all ${selectedPayment === opt.id ? 'border-primary bg-primary/10' : 'border-white/10 hover:bg-white/5'}`}
-                >
-                  <opt.icon className={`w-6 h-6 ${opt.color}`} />
-                  <span className="text-xs md:text-sm font-bold uppercase text-center">{opt.label}</span>
-                </button>
-              ))}
+            <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">Método de Pago</h4>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+                {paymentOptions.map(opt => (
+                    <button key={opt.id} onClick={() => setSelectedPayment(opt.id as PaymentMethod)} className={`p-3 rounded-xl flex flex-col items-center gap-1 border transition-all ${selectedPayment === opt.id ? 'border-primary bg-primary/5' : 'hover:bg-card'}`}>
+                        <opt.icon className={`w-4 h-4 ${opt.color}`} />
+                        <span className="text-xs font-bold uppercase">{opt.label}</span>
+                    </button>
+                ))}
             </div>
-            <div id="payment-details" className={`mb-6 p-5 md:p-8 bg-card rounded-2xl border border-primary/10 min-h-[140px] flex-col justify-center ${selectedPayment ? 'flex' : 'hidden'}`}>
-                {selectedPayment === "Pago Móvil" && (
+            <div id="payment-details" className="mb-6">
+                {selectedPayment === "Pago Movil" && (
                      <div className="space-y-4">
-                        <div className="bg-black/20 p-3 rounded-lg border border-white/5 text-center">
-                            <p className="text-primary text-xs font-black uppercase tracking-widest mb-1">Datos Destino</p>
-                            <p className="text-xs text-muted-foreground uppercase">Banco: <span className="text-white font-bold">{PAGO_MOVIL_INFO.banco}</span></p>
-                            <p className="text-xs text-muted-foreground uppercase">Cédula: <span className="text-white font-bold">{PAGO_MOVIL_INFO.cedula}</span></p>
-                            <p className="text-xs text-muted-foreground uppercase">Teléfono: <span className="text-white font-bold">{PAGO_MOVIL_INFO.telefono}</span></p>
+                        <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 text-sm">
+                            <p className="font-black text-primary uppercase mb-1">Pagar a:</p>
+                            <p>{PAGO_MOVIL_INFO.banco} | V-{PAGO_MOVIL_INFO.cedula} | {PAGO_MOVIL_INFO.telefono}</p>
                         </div>
-                        
-                        <div className="space-y-2 border-t border-white/5 pt-2">
-                            <p className="text-xs font-bold uppercase text-primary ml-1">Registrar Datos del Pago:</p>
-                            <Input type="text" placeholder="Banco Emisor" onInput={(e) => handlePMChange('banco', e.currentTarget.value)} value={pmData.banco} className="bg-foreground/5 border-white/10 h-10"/>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Input type="text" placeholder="Ref. (Ult 4-6 dígitos)" onInput={(e) => handlePMChange('referencia', e.currentTarget.value)} value={pmData.referencia} className="bg-foreground/5 border-white/10 h-10"/>
-                                <Input type="text" placeholder="Cédula Titular" onInput={(e) => handlePMChange('cedula', e.currentTarget.value)} value={pmData.cedula} className="bg-foreground/5 border-white/10 h-10"/>
-                            </div>
-                            <Input type="tel" placeholder="Teléfono del Pago" onInput={(e) => handlePMChange('telefono', e.currentTarget.value)} value={pmData.telefono} className="bg-foreground/5 border-white/10 h-10"/>
+                        <div className="grid gap-3 p-4 bg-card rounded-xl border">
+                            <Select onValueChange={(value) => handlePMChange('bancoEmisor', value)}>
+                              <SelectTrigger className="w-full px-3 py-2 rounded-lg border text-sm h-auto">
+                                <SelectValue placeholder="Banco Emisor" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {BANCOS_VENEZUELA.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <Input type="text" placeholder="Referencia" onInput={(e) => handlePMChange('referencia', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
+                            <Input type="text" placeholder="Teléfono" onInput={(e) => handlePMChange('telefonoPago', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
+                            <Input type="text" placeholder="Cédula" onInput={(e) => handlePMChange('cedulaTitular', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
                         </div>
                     </div>
                 )}
-                {selectedPayment === "Efectivo" && <p className="text-center text-sm uppercase font-bold text-muted-foreground">Acordaremos entrega y pago físico por WhatsApp</p>}
-                {selectedPayment === "Binance Pay" && <p className="text-center text-sm uppercase font-bold text-muted-foreground">Solicita el correo de Binance Pay por WhatsApp</p>}
+                 {selectedPayment === "Efectivo" && <p className="text-sm text-muted-foreground text-center italic">Pagos en efectivo/divisas se coordinan por WhatsApp.</p>}
             </div>
-          </div>
-          <Button onClick={processCheckout} disabled={!isCheckoutValid} className="w-full py-6 rounded-xl font-black uppercase text-sm tracking-widest transition-all disabled:bg-primary/50 disabled:text-white/50">
-            Confirmar Orden
-          </Button>
+            <Button onClick={processCheckout} disabled={!isCheckoutValid} className="w-full py-6 rounded-xl font-black uppercase text-sm mt-auto disabled:bg-primary/30 disabled:text-white disabled:cursor-not-allowed">
+                Confirmar Orden
+            </Button>
         </div>
       </DialogContent>
     </Dialog>

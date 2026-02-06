@@ -22,50 +22,50 @@ export default function HomeSection({ setActiveTab }: HomeSectionProps) {
       { threshold: 0.1 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, []);
 
   return (
-    <div id="inicio" className="hero-gradient">
-      <section className="min-h-[calc(100vh-5rem)] flex flex-col justify-center items-center px-6 text-center">
-        <div ref={sectionRef} className="scroll-reveal">
-          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-[0.2em] uppercase border border-primary text-primary rounded-full bg-primary/5">
-            Potencia y Rendimiento Garantizado
-          </span>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-extrabold tracking-tighter mb-6 leading-tight">
-            Hardware de <br /> <span className="text-primary">Alta Gama.</span>
-          </h1>
-          <p className="max-w-2xl mx-auto text-muted-foreground text-base md:text-xl mb-10 font-light px-4">
-            Expertos en ensamblaje y soporte técnico. Paga en Bolívares a tasa
-            oficial BCV con total transparencia.
-          </p>
-          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
-            <Button
-              onClick={() => setActiveTab("shop")}
-              size="lg"
-              className="px-8 py-7 rounded-xl font-bold uppercase text-sm tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/30"
-            >
-              Explorar Tienda
-            </Button>
-            <Button
-              onClick={() => setActiveTab("tickets")}
-              variant="outline"
-              size="lg"
-              className="bg-foreground/5 border-foreground/10 text-foreground px-8 py-7 rounded-xl font-bold uppercase text-sm tracking-widest hover:bg-foreground/10 transition-all"
-            >
-              Soporte Técnico
-            </Button>
-          </div>
+    <section className="min-h-[80vh] flex flex-col justify-center items-center px-6 text-center">
+      <div ref={sectionRef} className="scroll-reveal max-w-5xl">
+        <span className="inline-block px-3 py-1 mb-4 text-xs md:text-sm font-bold tracking-[0.2em] uppercase border border-primary text-primary rounded-full bg-primary/5">
+          Potencia y Rendimiento
+        </span>
+        <h1 className="text-4xl sm:text-6xl lg:text-8xl font-extrabold tracking-tighter mb-4 leading-tight text-foreground">
+          Hardware de <br className="hidden sm:block" />{" "}
+          <span className="text-primary">Alta Gama.</span>
+        </h1>
+        <p className="max-w-xl mx-auto text-muted-foreground text-sm md:text-lg mb-8 font-light px-4">
+          Ensamblaje profesional y soporte técnico avanzado. Pagos en Bolívares a
+          tasa oficial BCV.
+        </p>
+        <div className="flex flex-col xs:flex-row gap-3 justify-center">
+          <Button
+            onClick={() => setActiveTab("shop")}
+            size="lg"
+            className="px-6 py-6 rounded-xl font-bold uppercase text-sm tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/30 w-full xs:w-auto"
+          >
+            Explorar Tienda
+          </Button>
+          <Button
+            onClick={() => setActiveTab("tickets")}
+            variant="outline"
+            size="lg"
+            className="bg-card border-black/5 text-foreground px-6 py-6 rounded-xl font-bold uppercase text-sm tracking-widest hover:bg-white transition-all w-full xs:w-auto"
+          >
+            Soporte Técnico
+          </Button>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

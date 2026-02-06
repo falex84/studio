@@ -7,13 +7,6 @@ import { z } from "zod";
 import jsPDF from 'jspdf';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
@@ -24,25 +17,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  HelpCircle,
-  User,
-  Mail,
-  Settings,
-  MessageSquare,
-  Bot,
-  BrainCircuit,
-  FileText,
-  ArrowRight,
-} from "lucide-react";
-import { getAiDiagnosis, getTicketSummary } from "@/app/actions";
+import { Bot, FileText } from "lucide-react";
+import { getAiDiagnosis } from "@/app/actions";
 import { CONTACT_WA } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 
 const ticketSchema = z.object({
   name: z.string().min(2, "El nombre es requerido."),
   email: z.string().email("Correo electrónico inválido."),
-  issueType: z.string(),
   issueDescription: z
     .string()
     .min(10, "Por favor, describe el problema con más detalle."),
@@ -54,20 +36,18 @@ export default function TicketsSection() {
   const { toast } = useToast();
   const [aiDiagnosis, setAiDiagnosis] = useState("");
   const [isDiagnosing, setIsDiagnosing] = useState(false);
-  const [ticketNumber, setTicketNumber] = useState("");
 
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       name: "",
       email: "",
-      issueType: "Falla de Hardware",
       issueDescription: "",
     },
   });
 
   const diagnoseIssue = async () => {
-    const isValid = await form.trigger(["issueDescription", "name", "issueType"]);
+    const isValid = await form.trigger(["issueDescription", "name"]);
     if (!isValid) {
       toast({
         title: "Campos incompletos",
@@ -79,14 +59,11 @@ export default function TicketsSection() {
 
     setIsDiagnosing(true);
     setAiDiagnosis("");
-    
-    const newTicketNumber = `${Math.floor(1000 + Math.random() * 9000)}`;
-    setTicketNumber(newTicketNumber);
 
     const values = form.getValues();
     const diagnosis = await getAiDiagnosis({
       problemDescription: values.issueDescription,
-      ticketType: values.issueType,
+      ticketType: 'Falla de Hardware', // This is now fixed as per the new design
       userName: values.name,
     });
     setAiDiagnosis(diagnosis);
@@ -98,96 +75,64 @@ export default function TicketsSection() {
         toast({ title: "Error", description: "Primero debes generar un diagnóstico.", variant: "destructive" });
         return;
       }
-      const { name, issueType, issueDescription } = form.getValues();
+      const { name } = form.getValues();
       const doc = new jsPDF();
       
-      doc.setFillColor(0, 56, 168);
-      doc.rect(0, 0, 210, 35, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20);
-      doc.text("ALEXPC | SOPORTE TÉCNICO", 15, 22);
-      doc.setFontSize(9);
-      doc.text(`N° TICKET: ${ticketNumber}`, 165, 22);
+      doc.setFillColor(0, 56, 168); 
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(255, 255, 255); 
+      doc.setFontSize(22); 
+      doc.text("ALEXPC HARDWARE", 15, 25);
+      doc.setTextColor(29, 29, 31); 
+      doc.setFontSize(12); 
+      doc.text(`Cliente: ${name}`, 15, 60);
+      doc.text("ANALISIS TECNICO IA:", 15, 85);
+      doc.setFontSize(10); 
+      const splitText = doc.splitTextToSize(aiDiagnosis, 180); 
+      doc.text(splitText, 15, 95);
 
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12)
-      doc.text("RESUMEN DE SOLICITUD", 15, 50);
-      doc.line(15, 52, 195, 52);
-      doc.text(`Cliente: ${name}`, 15, 62);
-      doc.text(`Servicio: ${issueType}`, 15, 68);
-
-      doc.text("PROBLEMA:", 15, 80);
-      const splitMsg = doc.splitTextToSize(issueDescription, 180);
-      doc.text(splitMsg, 15, 86); 
-
-      doc.setFillColor(245, 245, 250);
-      doc.rect(15, 110, 180, 80, 'F');
-      doc.setTextColor(0, 56, 168);
-      doc.text("DIAGNÓSTICO IA", 20, 120);
-      doc.setTextColor(40, 40, 40);
-      const splitDiag = doc.splitTextToSize(aiDiagnosis, 170);
-      doc.text(splitDiag, 20, 130);
-
-      doc.save(`Reporte_AlexPC_${ticketNumber}.pdf`);
+      doc.save(`Diagnostico_${name}.pdf`);
       toast({ title: "Reporte descargado", description: "Adjunta el PDF manualmente en WhatsApp." });
   }
 
   const submitTicket = async (data: TicketFormValues) => {
-    let summary = aiDiagnosis;
-    if (!summary) {
-        summary = await getTicketSummary(data);
-    }
-    
-    const waMessage = `🛠️ *TICKET DE SOPORTE #${ticketNumber || 'N/A'}*%0A%0A` +
-        `👤 *Cliente:* ${data.name}%0A` +
-        `✉️ *Email:* ${data.email}%0A` +
-        `🔧 *Tipo:* ${data.issueType}%0A` +
-        `📝 *Falla:* ${data.issueDescription}%0A%0A` +
-        (summary ? `✨ *RESUMEN IA:* ${summary.substring(0, 300)}...%0A` : '');
-
-    window.open(`https://wa.me/${CONTACT_WA}?text=${encodeURIComponent(waMessage)}`, '_blank');
+    const waMessage = `Soporte: ${encodeURIComponent(data.issueDescription)}`;
+    window.open(`https://wa.me/${CONTACT_WA}?text=${waMessage}`, '_blank');
     form.reset();
     setAiDiagnosis("");
-    setTicketNumber("");
     toast({ title: "Ticket enviado a WhatsApp", description: "Nuestro equipo te atenderá pronto." });
   };
 
   return (
-    <div id="tickets" className="relative overflow-hidden">
-      <section className="py-12 md:py-20 px-4 md:px-6 max-w-5xl mx-auto relative z-10">
-        <div className="text-center mb-10 md:mb-16">
-          <span className="inline-flex items-center gap-2 text-primary text-sm font-black uppercase tracking-[0.3em] mb-4">
-            <HelpCircle className="w-4 h-4" /> Canal de Ayuda
-          </span>
-          <h2 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-4 uppercase italic">
+    <div id="tickets" className="bg-card">
+      <section className="py-10 md:py-16 px-4 sm:px-6 max-w-4xl mx-auto">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter mb-2 uppercase italic text-foreground">
             Ticket de <span className="text-primary">Servicio</span>
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto font-light">
-            ¿Problemas con tu equipo? Completa los datos y nuestra IA te dará un
-            diagnóstico preliminar.
+          <p className="text-muted-foreground text-xs md:text-sm font-light px-4">
+            Diagnóstico inteligente para tus problemas de hardware.
           </p>
         </div>
 
-        <div className="bg-card/50 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-14 border border-white/5 shadow-2xl">
+        <div className="bg-background rounded-[2rem] p-6 md:p-12 border shadow-lg">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(submitTicket)}
-              className="space-y-8"
+              className="space-y-6 md:space-y-8"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground ml-1">
-                        <User className="w-4 h-4" /> Tu Nombre
-                      </FormLabel>
+                      <FormLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Tu Nombre</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Ej: Alejandro Pérez"
                           {...field}
-                          className="px-5 py-6 rounded-2xl bg-input border-white/10 text-base"
+                          className="w-full px-4 py-5 rounded-xl bg-input text-sm"
                         />
                       </FormControl>
                       <FormMessage />
@@ -199,15 +144,13 @@ export default function TicketsSection() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground ml-1">
-                        <Mail className="w-4 h-4" /> Correo Electrónico
-                      </FormLabel>
+                      <FormLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Correo</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="correo@ejemplo.com"
                           {...field}
-                          className="px-5 py-6 rounded-2xl bg-input border-white/10 text-base"
+                           className="w-full px-4 py-5 rounded-xl bg-input text-sm"
                         />
                       </FormControl>
                       <FormMessage />
@@ -218,46 +161,16 @@ export default function TicketsSection() {
 
               <FormField
                 control={form.control}
-                name="issueType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground ml-1">
-                      <Settings className="w-4 h-4" /> Tipo de Falla
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="px-5 py-6 rounded-2xl bg-input border-white/10 text-base">
-                          <SelectValue placeholder="Selecciona un tipo de falla" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-input border-white/10 text-foreground">
-                        <SelectItem value="Falla de Hardware">Falla de Hardware</SelectItem>
-                        <SelectItem value="Mantenimiento / Software">Mantenimiento / Software</SelectItem>
-                        <SelectItem value="Presupuesto Ensamblaje">Presupuesto Ensamblaje</SelectItem>
-                        <SelectItem value="Otro Motivo">Otro Motivo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="issueDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground ml-1">
-                      <MessageSquare className="w-4 h-4" /> Descripción del problema
-                    </FormLabel>
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Falla</FormLabel>
                     <FormControl>
                       <Textarea
-                        rows={5}
-                        placeholder="Cuéntanos qué sucede..."
+                        rows={4}
+                        placeholder="Describe el problema detalladamente..."
                         {...field}
-                        className="px-5 py-4 rounded-2xl bg-input border-white/10 text-base resize-none"
+                        className="w-full px-4 py-3.5 rounded-xl bg-input text-sm resize-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -267,55 +180,53 @@ export default function TicketsSection() {
 
               {(isDiagnosing || aiDiagnosis) && (
                 <div id="aiDiagnosticBox">
-                  <div className="p-6 rounded-2xl bg-primary/10 border border-primary/30 relative overflow-hidden">
-                    <div className="flex justify-between items-center mb-3">
-                      <div className="flex items-center gap-2 text-primary text-sm font-black uppercase">
-                        <Bot className="w-4 h-4" /> Diagnóstico IA AlexPC ✨
-                      </div>
-                      <div className="text-primary font-mono text-sm font-bold">#{ticketNumber}</div>
+                  <div className="p-5 rounded-xl bg-primary/5 border border-primary/10">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 text-primary text-sm font-black uppercase">
+                            <Bot className="w-4 h-4" /> Resumen Técnico AlexPC ✨
+                        </div>
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Optimizado: 1 Hoja</span>
                     </div>
                     {isDiagnosing ? (
                       <div className="space-y-2">
-                        <Skeleton className="h-4 w-full bg-primary/20" />
-                        <Skeleton className="h-4 w-2/3 bg-primary/20" />
+                        <Skeleton className="h-4 w-full shimmer" />
+                        <Skeleton className="h-4 w-2/3 shimmer" />
                       </div>
                     ) : (
-                      <div className="text-sm text-foreground leading-relaxed font-light mb-4"
-                        dangerouslySetInnerHTML={{ __html: aiDiagnosis.replace(/\n/g, '<br />') }}
-                      />
+                      <>
+                        <div className="text-sm text-foreground leading-relaxed font-normal mb-4"
+                          dangerouslySetInnerHTML={{ __html: aiDiagnosis.replace(/\n/g, '<br />') }}
+                        />
+                         <Button
+                            type="button"
+                            onClick={generatePDF}
+                            disabled={isDiagnosing}
+                            variant="outline"
+                            className="bg-background text-primary border-primary/30 px-3 py-1.5 h-auto rounded-lg text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:text-white transition-all"
+                          >
+                            <FileText className="w-3 h-3" /> Exportar PDF (Resumen)
+                          </Button>
+                      </>
                     )}
-                    <div className="flex items-center gap-3 mt-4">
-                      <Button
-                        type="button"
-                        onClick={generatePDF}
-                        disabled={isDiagnosing}
-                        className="bg-primary/20 hover:bg-primary text-primary hover:text-white border border-primary/30 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
-                      >
-                        <FileText className="w-3 h-3 mr-2" /> Descargar PDF
-                      </Button>
-                      <span className="text-xs text-muted-foreground uppercase font-bold tracking-widest italic">Adjunta el PDF en WA</span>
-                    </div>
                   </div>
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button
                   type="button"
                   onClick={diagnoseIssue}
                   disabled={isDiagnosing}
                   variant="outline"
-                  className="flex-1 bg-foreground/5 border-foreground/10 text-foreground py-7 rounded-2xl font-black uppercase text-sm tracking-[0.2em] transition-all hover:bg-foreground/10"
+                  className="flex-1 bg-card text-foreground py-6 rounded-xl font-bold uppercase text-sm tracking-widest border hover:bg-white transition-all"
                 >
-                  <BrainCircuit className="w-4 h-4 mr-3" />
-                  {isDiagnosing ? "Analizando..." : "Consulta de falla ✨"}
+                  {isDiagnosing ? "Generando..." : "Generar Diagnóstico ✨"}
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 py-7 rounded-2xl font-black uppercase text-sm tracking-[0.2em] transition-all hover:brightness-110 active:scale-[0.98] shadow-2xl shadow-primary/30"
+                  className="flex-1 py-6 rounded-xl font-black uppercase text-sm tracking-widest shadow-lg shadow-primary/20"
                 >
-                  Enviar a Soporte (WA)
-                  <ArrowRight className="w-4 h-4 ml-3" />
+                  Enviar Soporte (WA)
                 </Button>
               </div>
             </form>

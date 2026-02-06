@@ -25,8 +25,7 @@ export default function Home() {
     if (productToAdd) {
       setCart((prevCart) => [...prevCart, productToAdd]);
       toast({
-        title: "Producto Añadido",
-        description: `+1 ${productToAdd.name}`,
+        title: "Agregado al Carrito",
       });
     }
   };
@@ -68,7 +67,17 @@ export default function Home() {
         cartCount={cart.length}
         openCart={() => setIsCartOpen(true)}
       />
-      <main className="flex-grow pt-20">{renderContent()}</main>
+       <main className="flex-grow pt-24 sm:pt-20">
+        <div className={`tab-content ${activeTab === 'inicio' ? 'active' : ''}`}>
+          <HomeSection setActiveTab={setActiveTab} />
+        </div>
+        <div className={`tab-content ${activeTab === 'shop' ? 'active' : ''}`}>
+          <ShopSection addToCart={addToCart} />
+        </div>
+        <div className={`tab-content ${activeTab === 'tickets' ? 'active' : ''}`}>
+          <TicketsSection />
+        </div>
+      </main>
       <Footer />
       <CheckoutModal
         isOpen={isCartOpen}

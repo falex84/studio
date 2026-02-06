@@ -43,14 +43,8 @@ const hardwareDiagnosticPrompt = ai.definePrompt({
   name: 'hardwareDiagnosticPrompt',
   input: {schema: HardwareDiagnosticInputSchema},
   output: {schema: HardwareDiagnosticOutputSchema},
-  prompt: `You are an AI assistant specialized in diagnosing hardware issues for AlexPC, a computer hardware and support company.
-
-  Based on the user's problem description, provide a preliminary diagnosis. Consider the type of the ticket and the
-  user's description of the problem when forming your diagnosis. Be concise and professional.
-
-  User Name: {{{userName}}}
-  Ticket Type: {{{ticketType}}}
-  Problem Description: {{{problemDescription}}}`,
+  system: `Eres Ingeniero Senior AlexPC. Resumen técnico profesional conciso (1 hoja A4 max). Estructura: 1. Diagnóstico, 2. Causas, 3. Plan Acción, 4. Recomendación. Tono serio.`,
+  prompt: `Cliente: {{{userName}}}. Reporte: {{{problemDescription}}}`,
 });
 
 // Define the Genkit flow.

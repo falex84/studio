@@ -6,5 +6,13 @@ export const PAGO_MOVIL_INFO = {
   cedula: "16558005",
 };
 
-// Tasa actualizada según BCV oficial (Ajustada según tendencia actual)
-export const BCV_RATE = 378.46;
+// Tasa base (fallback por si falla la API)
+export const BCV_RATE = 38.00;
+
+export const BANCOS_VENEZUELA = [
+    "0102 - Banco de Venezuela", "0105 - Mercantil", "0108 - Provincial", "0114 - Bancaribe",
+    "0115 - Exterior", "0128 - Banco Caroní", "0134 - Banesco", "0151 - BFC",
+    "0156 - 100% Banco", "0157 - DelSur", "0163 - Tesoro", "0166 - Agrícola",
+    "0168 - Bancrecer", "0169 - Mi Banco", "0171 - Activo", "0172 - Bancamiga",
+    "0174 - Banplus", "0175 - Bicentenario", "0177 - BANFANB", "0191 - BNC"
+];

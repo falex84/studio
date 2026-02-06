@@ -2,6 +2,7 @@
 
 import type { Product } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
 
 type ProductCardProps = {
   product: Product;
@@ -9,33 +10,37 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ product, addToCart }: ProductCardProps) {
-  const Icon = product.icon;
   return (
-    <div className="product-card p-5 md:p-7 rounded-[25px] flex flex-col group h-full bg-gradient-to-br from-card to-background border border-foreground/5 transition-all duration-300 hover:border-primary/40 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50">
-      <div className="relative aspect-[4/3] mb-6 overflow-hidden rounded-2xl bg-black/50 flex items-center justify-center">
-        <div
-          className={`absolute inset-0 bg-gradient-to-tr ${product.color} to-transparent opacity-40 group-hover:opacity-60 transition-opacity`}
-        ></div>
-        <Icon className="w-12 h-12 md:w-16 md:h-16 text-white/80 relative z-10 group-hover:scale-110 transition-transform duration-500" />
+    <div className="product-card p-6 rounded-[24px] flex flex-col h-full border transition-all duration-300 hover:border-primary/20 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/5">
+       <div className="relative aspect-video mb-5 overflow-hidden rounded-xl bg-card">
+          <Image 
+            src={product.image} 
+            alt={product.name} 
+            fill
+            className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            data-ai-hint={product.imageHint}
+            />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
       </div>
       <div className="flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-sm md:text-base uppercase tracking-tight max-w-[75%]">
+        <div className="flex justify-between items-start gap-2 mb-2">
+          <h3 className="font-bold text-sm uppercase tracking-tight text-foreground">
             {product.name}
           </h3>
-          <span className="text-primary font-black text-sm md:text-base">
+          <span className="text-primary font-black text-base">
             ${product.price.toFixed(2)}
           </span>
         </div>
-        <p className="text-muted-foreground text-xs md:text-sm mb-6 uppercase tracking-widest font-light">
+        <p className="text-muted-foreground text-xs mb-5 uppercase tracking-widest font-light">
           {product.description}
         </p>
       </div>
       <Button
         onClick={() => addToCart(product.id)}
-        className="w-full py-5 bg-primary/10 border border-primary/20 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all shadow-lg text-primary"
+        className="w-full py-5 rounded-xl text-sm font-black uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all"
       >
-        Agregar al Carrito
+        Añadir al Carrito
       </Button>
     </div>
   );
