@@ -36,6 +36,7 @@ export default function CheckoutModal({
 }: CheckoutModalProps) {
   const { toast } = useToast();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
+  const [buyerInfo, setBuyerInfo] = useState({ name: "", lastname: "" });
   const [pmData, setPmData] = useState({
     bancoEmisor: "",
     referencia: "",
@@ -53,7 +54,7 @@ export default function CheckoutModal({
   const totalBs = totalUSD * bcvRate;
 
   const isCheckoutValid = useMemo(() => {
-    if (cartItems.length === 0 || !selectedPayment) {
+    if (cartItems.length === 0 || !selectedPayment || !buyerInfo.name || !buyerInfo.lastname) {
       return false;
     }
     if (selectedPayment === "Pago Movil") {
@@ -62,7 +63,7 @@ export default function CheckoutModal({
       );
     }
     return true;
-  }, [cartItems, selectedPayment, pmData]);
+  }, [cartItems, selectedPayment, pmData, buyerInfo]);
 
   const fetchBcvRate = async () => {
     setIsLoadingRate(true);
@@ -90,6 +91,7 @@ export default function CheckoutModal({
     if (!isOpen) {
       setSelectedPayment(null);
       setPmData({ bancoEmisor: "", referencia: "", telefonoPago: "", cedulaTitular: "" });
+      setBuyerInfo({ name: "", lastname: "" });
     }
   }, [isOpen]);
   
@@ -97,19 +99,19 @@ export default function CheckoutModal({
     setPmData((prev) => ({ ...prev, [field]: value }));
   };
   
+  const handleBuyerInfoChange = (field: keyof typeof buyerInfo, value: string) => {
+    setBuyerInfo((prev) => ({ ...prev, [field]: value }));
+  };
+  
   const processCheckout = () => {
     if (!isCheckoutValid) return;
 
     const items = cartItems.map(p => `- ${p.name}`).join('%0A');
     
-    let message = `🛒 *ORDEN ALEXPC*%0A%0A*ITEMS:*%0A${items}%0A%0A`;
-    message += `USD: $${totalUSD.toFixed(2)}%0A`;
-    message += `Tasa: ${bcvRate.toFixed(2)}%0A`;
-    message += `Bs: ${totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%0A`;
-    message += `Método: ${selectedPayment}`;
+    let message = `🛒 *NUEVA ORDEN ALEXPC*%0A%0A*CLIENTE:* ${buyerInfo.name} ${buyerInfo.lastname}%0A%0A*PRODUCTOS:*%0A${items}%0A%0A*TOTALES:*%0AUSD: $${totalUSD.toFixed(2)}%0ATasa: ${bcvRate.toFixed(2)}%0ABs: ${totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%0A%0A*PAGO:* ${selectedPayment}`;
 
     if (selectedPayment === 'Pago Movil') {
-        message += `%0A%0ABanco: ${pmData.bancoEmisor}%0ARef: ${pmData.referencia}`;
+        message += `%0ABanco: ${pmData.bancoEmisor}%0ARef: ${pmData.referencia}%0ATel: ${pmData.telefonoPago}`;
     }
 
     window.open(`https://wa.me/${CONTACT_WA}?text=${message}`, '_blank');
@@ -182,6 +184,25 @@ export default function CheckoutModal({
             <div className="hidden md:flex justify-end mb-4">
                 <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-primary"><X className="w-7 h-7" /></Button>
             </div>
+            <div className="mb-6 space-y-3">
+              <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Datos del Comprador</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                      type="text"
+                      placeholder="Nombre"
+                      className="w-full px-4 py-5 rounded-xl bg-input text-sm"
+                      onInput={(e) => handleBuyerInfoChange('name', e.currentTarget.value)}
+                      value={buyerInfo.name}
+                  />
+                  <Input
+                      type="text"
+                      placeholder="Apellido"
+                      className="w-full px-4 py-5 rounded-xl bg-input text-sm"
+                      onInput={(e) => handleBuyerInfoChange('lastname', e.currentTarget.value)}
+                      value={buyerInfo.lastname}
+                  />
+              </div>
+            </div>
             <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">Método de Pago</h4>
             <div className="grid grid-cols-2 gap-3 mb-6">
                 {paymentOptions.map(opt => (
@@ -207,9 +228,9 @@ export default function CheckoutModal({
                                 {BANCOS_VENEZUELA.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                               </SelectContent>
                             </Select>
-                            <Input type="text" placeholder="Referencia" onInput={(e) => handlePMChange('referencia', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
-                            <Input type="text" placeholder="Teléfono" onInput={(e) => handlePMChange('telefonoPago', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
-                            <Input type="text" placeholder="Cédula" onInput={(e) => handlePMChange('cedulaTitular', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
+                            <Input type="text" placeholder="Referencia" value={pmData.referencia} onInput={(e) => handlePMChange('referencia', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
+                            <Input type="text" placeholder="Teléfono Pagador" value={pmData.telefonoPago} onInput={(e) => handlePMChange('telefonoPago', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
+                            <Input type="text" placeholder="Cédula Titular" value={pmData.cedulaTitular} onInput={(e) => handlePMChange('cedulaTitular', e.currentTarget.value)} className="w-full px-3 py-2 rounded-lg border text-sm h-auto"/>
                         </div>
                     </div>
                 )}
@@ -223,3 +244,5 @@ export default function CheckoutModal({
     </Dialog>
   );
 }
+
+    
