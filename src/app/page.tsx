@@ -68,14 +68,8 @@ export default function Home() {
         openCart={() => setIsCartOpen(true)}
       />
        <main className="flex-grow pt-24 sm:pt-20">
-        <div className={`tab-content ${activeTab === 'inicio' ? 'active' : ''}`}>
-          <HomeSection setActiveTab={setActiveTab} />
-        </div>
-        <div className={`tab-content ${activeTab === 'shop' ? 'active' : ''}`}>
-          <ShopSection addToCart={addToCart} />
-        </div>
-        <div className={`tab-content ${activeTab === 'tickets' ? 'active' : ''}`}>
-          <TicketsSection />
+        <div key={activeTab} className="tab-content active">
+          {renderContent()}
         </div>
       </main>
       <Footer />
