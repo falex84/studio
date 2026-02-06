@@ -12,8 +12,10 @@ import {
   Smartphone,
   Banknote,
   Coins,
+  RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getBcvRate } from "@/app/actions";
 
 type CheckoutModalProps = {
   isOpen: boolean;
@@ -43,11 +45,14 @@ export default function CheckoutModal({
     telefono: "",
   });
 
+  const [bcvRate, setBcvRate] = useState<number>(BCV_RATE);
+  const [isLoadingRate, setIsLoadingRate] = useState(true);
+
   const totalUSD = useMemo(
     () => cartItems.reduce((acc, item) => acc + item.price, 0),
     [cartItems]
   );
-  const totalBs = totalUSD * BCV_RATE;
+  const totalBs = totalUSD * bcvRate;
 
   const isCheckoutValid = useMemo(() => {
     if (cartItems.length === 0 || !selectedPayment) {
@@ -60,6 +65,28 @@ export default function CheckoutModal({
     }
     return true;
   }, [cartItems, selectedPayment, pmData]);
+
+  const fetchBcvRate = async () => {
+    setIsLoadingRate(true);
+    const rate = await getBcvRate();
+    if (rate) {
+      setBcvRate(rate);
+    } else {
+      setBcvRate(BCV_RATE); // Fallback
+      toast({
+        title: "Error al cargar tasa de cambio",
+        description: "Usando tasa de respaldo. Intente de nuevo.",
+        variant: "destructive",
+      });
+    }
+    setIsLoadingRate(false);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchBcvRate();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -81,7 +108,7 @@ export default function CheckoutModal({
     message += `📦 *PRODUCTOS:*%0A${items}%0A%0A`;
     message += `💵 *TOTAL USD:* $${totalUSD.toFixed(2)}%0A`;
     message += `💸 *TOTAL BS:* Bs. ${totalBs.toLocaleString('de-DE', {minimumFractionDigits: 2})}%0A`;
-    message += `📈 *TASA BCV:* Bs. ${BCV_RATE.toFixed(2)}%0A`;
+    message += `📈 *TASA BCV:* Bs. ${bcvRate.toFixed(2)}%0A`;
     message += `💳 *MÉTODO:* ${selectedPayment}%0A%0A`;
 
     if (selectedPayment === 'Pago Móvil') {
@@ -140,7 +167,16 @@ export default function CheckoutModal({
           <div className="pt-4 border-t border-white/10 mt-auto">
              <div className="flex justify-between items-center mb-2">
                 <span className="text-muted-foreground uppercase font-bold text-xs tracking-widest">Tasa BCV Oficial</span>
-                <span className="text-primary text-sm font-mono font-bold tracking-tighter">Bs. {BCV_RATE.toFixed(2)}</span>
+                <div className="flex items-center gap-2">
+                  {isLoadingRate ? (
+                    <span className="text-primary text-sm font-mono font-bold tracking-tighter animate-pulse">Cargando...</span>
+                  ) : (
+                    <span className="text-primary text-sm font-mono font-bold tracking-tighter">Bs. {bcvRate.toFixed(2)}</span>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={fetchBcvRate} disabled={isLoadingRate} className="h-6 w-6 text-muted-foreground hover:text-primary">
+                    <RefreshCw className={`w-3 h-3 ${isLoadingRate ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
             </div>
             <div className="flex justify-between items-end mb-2">
                 <span className="text-muted-foreground uppercase font-bold text-xs tracking-widest">Subtotal USD</span>

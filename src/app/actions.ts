@@ -32,3 +32,23 @@ export async function getTicketSummary(
     return "Error al generar el resumen.";
   }
 }
+
+export async function getBcvRate(): Promise<number | null> {
+  try {
+    // Revalidate every hour
+    const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { next: { revalidate: 3600 } });
+    if (!response.ok) {
+        console.error('Failed to fetch BCV rate, API offline');
+        return null;
+    }
+    
+    const data = await response.json();
+    if(data && data.promedio) {
+        return parseFloat(data.promedio);
+    }
+    return null;
+  } catch (e) {
+    console.error("Error fetching BCV rate:", e);
+    return null;
+  }
+}
