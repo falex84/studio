@@ -237,8 +237,8 @@ export default function CheckoutModal({
                 )}
                  {selectedPayment === "Efectivo" && <p className="text-sm text-muted-foreground text-center italic">Pagos en efectivo/divisas se coordinan por WhatsApp.</p>}
             </div>
-            <Button onClick={processCheckout} disabled={!isCheckoutValid} className="w-full py-6 rounded-xl font-black uppercase text-sm mt-auto disabled:bg-primary/30 disabled:text-white disabled:cursor-not-allowed">
-                Confirmar Orden
+            <Button onClick={processCheckout} disabled={!isCheckoutValid} className="w-full py-6 rounded-xl font-black uppercase text-sm mt-auto disabled:bg-primary/30 disabled:text-white disabled:cursor-not-allowed transition-all">
+                Confirmar Orden vía WhatsApp
             </Button>
         </div>
       </DialogContent>
