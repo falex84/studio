@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -135,10 +135,11 @@ export default function CheckoutModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="p-0 bg-background max-w-5xl w-full h-full sm:h-auto sm:max-h-[90vh] flex flex-col md:flex-row sm:rounded-[30px] gap-0 shadow-2xl">
         <div className="w-full md:w-5/12 p-5 md:p-8 bg-card md:border-r flex flex-col overflow-hidden">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter">Resumen</h3>
+          <DialogHeader className="flex flex-row justify-between items-center mb-6">
+            <DialogTitle className="text-xl md:text-2xl font-black uppercase tracking-tighter">Resumen</DialogTitle>
+            <DialogDescription className="sr-only">Modal de checkout para revisar los artículos del carrito y procesar el pago.</DialogDescription>
             <Button onClick={onClose} variant="ghost" size="icon" className="md:hidden text-muted-foreground"><X className="w-6 h-6"/></Button>
-          </div>
+          </DialogHeader>
           <div id="cart-items" className="flex-grow overflow-y-auto space-y-3 mb-6 pr-2 custom-scroll max-h-[30vh] md:max-h-none">
             {cartItems.length > 0 ? (
               cartItems.map((item, index) => (
@@ -244,5 +245,3 @@ export default function CheckoutModal({
     </Dialog>
   );
 }
-
-    
