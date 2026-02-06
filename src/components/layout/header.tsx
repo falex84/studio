@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AlexPcLogo } from "@/components/icons";
+import { AlexPcLogo, WhatsappIcon } from "@/components/icons";
 import { ShoppingCart } from "lucide-react";
+import { CONTACT_WA } from "@/lib/constants";
 
 type HeaderProps = {
   setActiveTab: (tab: "inicio" | "shop" | "tickets") => void;
@@ -42,14 +43,14 @@ export default function Header({
           </div>
 
           <div className="flex items-center">
-            <Button
-              asChild
-              className="rounded-full text-xs md:text-sm font-extrabold uppercase tracking-widest hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/20 px-4 md:px-6 py-2 md:py-2.5 h-auto"
+             <a
+              href={`https://wa.me/${CONTACT_WA}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-brand-whatsapp text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-xl md:text-2xl hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-brand-whatsapp/20 animate-pulse-green"
             >
-              <a href={`https://wa.me/${process.env.NEXT_PUBLIC_CONTACT_WA}`} target="_blank" rel="noopener noreferrer">
-                WhatsApp
-              </a>
-            </Button>
+              <WhatsappIcon className="w-6 h-6 md:w-7 md:h-7" />
+            </a>
           </div>
         </div>
         <div className="flex sm:hidden w-full border-t bg-background/50 backdrop-blur justify-around py-2 text-xs font-bold uppercase tracking-widest">

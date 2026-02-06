@@ -64,6 +64,7 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        'brand-whatsapp': '#25D366',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -87,10 +88,21 @@ export default {
             height: '0',
           },
         },
+        'pulse-green': {
+            '0%, 100%': { 
+                transform: 'scale(0.95)',
+                boxShadow: '0 0 0 0 rgba(37, 211, 102, 0.7)',
+            },
+            '70%': {
+                transform: 'scale(1)',
+                boxShadow: '0 0 0 10px rgba(37, 211, 102, 0)',
+            },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'pulse-green': 'pulse-green 2s infinite',
       },
     },
   },
