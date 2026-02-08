@@ -1,0 +1,40 @@
+{
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "SSD NVMe Samsung 980 Pro",
+      "imageUrl": "https://images.unsplash.com/photo-1760623227551-2eae8f9cb675?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzc2QlMjBudm1lfGVufDB8fHx8MTc3MDM5NzUzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ssd nvme"
+    },
+    {
+      "id": "2",
+      "description": "RAM Corsair Vengeance",
+      "imageUrl": "https://images.unsplash.com/photo-1666868213704-1677b7f04c30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxyYW0lMjBtZW1vcnl8ZW58MHx8fHwxNzcwMzc3MDMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ram memory"
+    },
+    {
+      "id": "3",
+      "description": "RTX 4070 Founders Edition",
+      "imageUrl": "https://images.unsplash.com/photo-1555618254-84e2cf498b01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxncmFwaGljcyUyMGNhcmR8ZW58MHx8fHwxNzcwMzEwMDI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "graphics card"
+    },
+    {
+      "id": "4",
+      "description": "Logitech G Pro X Superlight",
+      "imageUrl": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxnYW1pbmclMjBtb3VzZXxlbnwwfHx8fDE3NzAzOTc1Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gaming mouse"
+    },
+    {
+      "id": "5",
+      "description": "Fuente EVGA 750W Gold",
+      "imageUrl": "https://images.unsplash.com/photo-1768120234482-12c6450dcf4f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3dlciUyMHN1cHBseXxlbnwwfHx8fDE3NzAzMDUxMTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "power supply"
+    },
+    {
+      "id": "6",
+      "description": "Case NZXT H5 Flow White",
+      "imageUrl": "https://images.unsplash.com/photo-1660855551550-2696677aaf28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb21wdXRlciUyMGNhc2V8ZW58MHx8fHwxNzcwMzIzOTc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "computer case"
+    }
+  ]
+}
