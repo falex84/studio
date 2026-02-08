@@ -105,7 +105,6 @@ export default function CheckoutModal({
     if (!isCheckoutValid) return;
 
     const items = cartItems.map(p => `- ${p.name}`).join('%0A');
-    const items = cartItems.map(p => `- ${p.name}`).join('%0A');
 
     let message = `🛒 *NUEVA ORDEN ALEXPC*%0A%0A*CLIENTE:* ${buyerInfo.name} ${buyerInfo.lastname}%0A%0A*PRODUCTOS:*%0A${items}%0A%0A*TOTALES:*%0AUSD: $${totalUSD.toFixed(2)}%0ATasa: ${bcvRate.toFixed(2)}%0ABs: ${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%0A%0A*PAGO:* ${selectedPayment}`;
 
