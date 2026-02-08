@@ -9,6 +9,7 @@ import { BCV_RATE, CONTACT_WA, BANCOS_VENEZUELA, PAGO_MOVIL_INFO } from "@/lib/c
 import type { Product } from "@/lib/types";
 import Image from "next/image";
 import {
+
   Trash2,
   Smartphone,
   Banknote,
@@ -93,7 +94,6 @@ export default function CheckoutModal({
       setBuyerInfo({ name: "", lastname: "" });
     }
   }, [isOpen]);
-
   const handlePMChange = (field: keyof typeof pmData, value: string) => {
     setPmData((prev) => ({ ...prev, [field]: value }));
   };
@@ -101,10 +101,10 @@ export default function CheckoutModal({
   const handleBuyerInfoChange = (field: keyof typeof buyerInfo, value: string) => {
     setBuyerInfo((prev) => ({ ...prev, [field]: value }));
   };
-
   const processCheckout = () => {
     if (!isCheckoutValid) return;
 
+    const items = cartItems.map(p => `- ${p.name}`).join('%0A');
     const items = cartItems.map(p => `- ${p.name}`).join('%0A');
 
     let message = `🛒 *NUEVA ORDEN ALEXPC*%0A%0A*CLIENTE:* ${buyerInfo.name} ${buyerInfo.lastname}%0A%0A*PRODUCTOS:*%0A${items}%0A%0A*TOTALES:*%0AUSD: $${totalUSD.toFixed(2)}%0ATasa: ${bcvRate.toFixed(2)}%0ABs: ${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%0A%0A*PAGO:* ${selectedPayment}`;
@@ -114,7 +114,6 @@ export default function CheckoutModal({
     }
 
     window.open(`https://wa.me/${CONTACT_WA}?text=${message}`, '_blank');
-
     toast({ title: "Orden enviada a WhatsApp", description: "Completa tu compra con nuestro equipo." });
     clearCart();
     onClose();
@@ -137,6 +136,7 @@ export default function CheckoutModal({
           <DialogHeader className="flex flex-row justify-between items-center mb-6">
             <DialogTitle className="text-xl md:text-2xl font-black uppercase tracking-tighter">Resumen</DialogTitle>
             <DialogDescription className="sr-only">Modal de checkout para revisar los artículos del carrito y procesar el pago.</DialogDescription>
+
           </DialogHeader>
           <div id="cart-items" className="flex-grow overflow-y-auto space-y-3 mb-6 pr-2 custom-scroll max-h-[30vh] md:max-h-none">
             {cartItems.length > 0 ? (
