@@ -38,7 +38,6 @@ export default function Header({
           </div>
 
           <div className="hidden sm:flex space-x-4 md:space-x-8 text-xs md:text-sm font-bold tracking-widest uppercase text-foreground">
-<<<<<<< HEAD
             <Button variant="ghost" onClick={() => setActiveTab("inicio")} className="rounded-full transition-all">
               Inicio
             </Button>
@@ -46,25 +45,12 @@ export default function Header({
               Tienda
             </Button>
             <Button variant="ghost" onClick={() => setActiveTab("tickets")} className="rounded-full transition-all">
-=======
-            <Button variant="ghost" onClick={() => setActiveTab("inicio")} className="hover:text-primary">
-              Inicio
-            </Button>
-            <Button variant="ghost" onClick={() => setActiveTab("shop")} className="hover:text-primary">
-              Tienda
-            </Button>
-            <Button variant="ghost" onClick={() => setActiveTab("tickets")} className="hover:text-primary">
->>>>>>> origin/main
               Tickets
             </Button>
           </div>
 
           <div className="flex items-center">
-<<<<<<< HEAD
             <a
-=======
-             <a
->>>>>>> origin/main
               href={`https://wa.me/${CONTACT_WA}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -75,15 +61,9 @@ export default function Header({
           </div>
         </div>
         <div className="flex sm:hidden w-full border-t bg-background/50 backdrop-blur justify-around py-2 text-xs font-bold uppercase tracking-widest">
-<<<<<<< HEAD
           <button onClick={() => setActiveTab('inicio')} className="px-2 py-1">Inicio</button>
           <button onClick={() => setActiveTab('shop')} className="px-2 py-1">Tienda</button>
           <button onClick={() => setActiveTab('tickets')} className="px-2 py-1">Tickets</button>
-=======
-            <button onClick={() => setActiveTab('inicio')} className="px-2 py-1">Inicio</button>
-            <button onClick={() => setActiveTab('shop')} className="px-2 py-1">Tienda</button>
-            <button onClick={() => setActiveTab('tickets')} className="px-2 py-1">Tickets</button>
->>>>>>> origin/main
         </div>
       </header>
       <div className="fixed top-1/2 right-0 -translate-y-1/2 z-40 pr-2 md:pr-4">
